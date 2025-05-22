@@ -49,9 +49,19 @@ def transcribe_audio(audio_file_path):
         return None
 
 def save_transcription(text, output_file):
-    with open(output_file, "w") as f:
+    # Create the transcriptions directory if it doesn't exist
+    transcriptions_dir = "transcriptions"
+    os.makedirs(transcriptions_dir, exist_ok=True)
+    
+    # Get just the filename without path
+    filename = os.path.basename(output_file)
+    
+    # Create the full path in the transcriptions directory
+    output_path = os.path.join(transcriptions_dir, filename)
+    
+    with open(output_path, "w") as f:
         f.write(text)
-    print(f"Transcription saved to {output_file}")
+    print(f"Transcription saved to {output_path}")
 
 def main():
     input_url = input("Enter the m3u8 url: ")
@@ -77,6 +87,14 @@ def main():
         if transcription:
             # Step 3: Save transcription to file
             save_transcription(transcription, transcript_file)
+            
+            # Step 4: Delete the MP3 file
+            try:
+                os.remove(output_mp3)
+                print(f"MP3 file {output_mp3} has been deleted.")
+            except Exception as e:
+                print(f"Error deleting MP3 file: {e}")
+                
             print("Process completed successfully!")
         else:
             print("Transcription failed.")
